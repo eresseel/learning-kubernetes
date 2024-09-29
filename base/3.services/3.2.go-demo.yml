@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: go-demo-2-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      type: api
+      service: go-demo-2
+  template:
+    metadata:
+      labels:
+        type: api
+        service: go-demo-2
+        language: go
+    spec:
+      containers:
+        - name: api
+          image: vfarcic/go-demo-2
+          env:
+            - name: DB
+              value: go-demo-2-db
+          readinessProbe:           # for services information, there is service
+            httpGet:
+              path: /demo/hello
+              port: 8080
+            periodSeconds: 1
+          livenessProbe:            # for replicaset information, only available pod
+            httpGet:
+              path: /demo/hello
+              port: 8080
+            initialDelaySeconds: 5  
+            timeoutSeconds: 2       # Default to 1
+            periodSeconds: 5        # Default to 10
+            failureThreshold: 1     # Default to 3

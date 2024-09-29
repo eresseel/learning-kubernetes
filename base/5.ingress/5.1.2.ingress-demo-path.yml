@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: go-demo-2-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+    - http:
+        paths: 
+          - path: /demo
+            pathType: Prefix
+            backend:
+              service:
+                name: go-demo-2-svc     # select service name
+                port:
+                  number: 8080
+
+
+# curl -i http://192.168.59.103/demo/hello

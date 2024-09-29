@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: go-demo-2
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      type: backend
+      service: go-demo-2
+  template:
+    metadata:
+      labels:
+        type: backend
+        service: go-demo-2
+        db: mongo
+        language: go
+    spec:
+      containers:
+        - name: db
+          image: mongo:3.3
+          command: ["mongod"]
+          args: ["--rest", "--httpinterface"]     # https interface
+          ports:
+            - containerPort: 28017
+              protocol: TCP
+        - name: api
+          image: vfarcic/go-demo-2
+          env:
+            - name: DB
+              value: localhost
+          livenessProbe:
+            httpGet:
+              path: /demo/hello
+              port: 8080
+
+# kubectl expose rs go-demo-2 --name=go-demo-2-svc --target-port=28017 --type=NodePort
+# kubectl delete svc go-demo-2-svc

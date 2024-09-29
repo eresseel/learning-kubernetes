@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-demo-2
+spec:
+  type: NodePort
+  selector:
+    type: backend
+    service: go-demo-2
+  ports:
+    - port: 28017          # internal pod port
+      nodePort: 30012      # port constant on all nodes
+      protocol: TCP
+
+# kubectl get ep go-demo-2 -o yaml

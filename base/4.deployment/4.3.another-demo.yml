@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: another-db
+  labels:
+    type: db
+    service: another-app
+    vendor: MongoLabs
+spec:
+  selector:
+    matchLabels:
+      type: db
+      service: another-app
+  template:
+    metadata:
+      labels:
+        type: db
+        service: another-app
+        vendor: MongoLabs
+    spec:
+      containers:
+        - name: db
+          image: mongo:3.3
+          ports:
+            - containerPort: 28017
+
+# kubectl get deployments.apps -l type=db,vendor=MongoLabs
+# kubectl set image deployments.apps -l type=db,vendor=MongoLabs db=mongo:3.4 --record

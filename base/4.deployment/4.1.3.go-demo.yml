@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-demo-2-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      type: api
+      service: go-demo-2
+  minReadySeconds: 1              # megmondja mennyi ideig kell mukodnie a podnak mire a k8s egeszsegesnek mondja, ennyi ido mulva iranyit forgalmat az uj pod-ra
+  progressDeadlineSeconds: 60     # N/A
+  revisionHistoryLimit: 5         # megmondja mennyi korabbi replicasetet tartson meg
+  strategy:
+    type: RollingUpdate           # lehet meg Recreate -> leallitja a podot es indit ujra, leallassal jar
+    rollingUpdate:
+      maxSurge: 1                 # megmondja mennyivel lehet tobb pod mint a replicas erteke
+      maxUnavailable: 1           # nem mukodo pod-ok maximalis erteke, igy legalabb 2 mindig futni fog
+  template:
+    metadata:
+      labels:
+        type: api
+        service: go-demo-2
+        language: go
+    spec:
+      containers:
+        - name: api
+          image: vfarcic/go-demo-2
+          env:
+            - name: DB
+              value: go-demo-2-db
+          readinessProbe:
+            httpGet:
+              path: /demo/hello
+              port: 8080
+            periodSeconds: 1
+          livenessProbe:
+            httpGet:
+              path: /demo/hello
+              port: 8080
+
+# kubectl apply -f 1.base/4.deployment/4.1.3.go-demo.yml --record
+# kubectl set image -f 1.base/4.deployment/4.1.3.go-demo.yml api=vfarcic/go-demo-2:2.0 --record=true
+# kubectl rollout status -w -f 1.base/4.deployment/4.1.3.go-demo.yml
+# kubectl rollout history -f 1.base/4.deployment/4.1.3.go-demo.yml
+# kubectl rollout undo -f 1.base/4.deployment/4.1.3.go-demo.yml --to-revision=2

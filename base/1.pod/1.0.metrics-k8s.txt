@@ -1,0 +1,11 @@
+minikube start
+minikube status
+kubectl config current-context
+kubectl create -f https://raw.githubusercontent.com/ryanj/metrics-k8s/master/pod.json
+kubectl get pod metrics-k8s -o yaml
+kubectl expose pod/metrics-k8s --port 2015 --type=NodePort
+minikube service metrics-k8s --url
+kubectl delete pod metrics-k8s
+kubectl delete service metrics-k8s
+---------
+kubectl run db --image mongo
